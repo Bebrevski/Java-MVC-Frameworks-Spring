@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import realestate.domain.models.binding.OfferFindBindingModel;
 import realestate.domain.models.binding.OfferRegisterBindingModel;
 import realestate.domain.models.service.OfferServiceModel;
 import realestate.service.OfferService;
@@ -29,12 +30,30 @@ public class OfferController {
 
     @PostMapping("/reg")
     public String registerConfirm(@ModelAttribute(name = "model") OfferRegisterBindingModel model) {
-        try{
+        try {
             this.offerService.registerOffer(this.modelMapper.map(model, OfferServiceModel.class));
-        } catch (IllegalArgumentException ex){
+        } catch (IllegalArgumentException ex) {
             ex.printStackTrace();
 
             return "redirect:/reg";
+        }
+
+        return "redirect:/";
+    }
+
+    @GetMapping("/find")
+    public String find() {
+        return "find.html";
+    }
+
+    @PostMapping("/find")
+    public String findConfirm(@ModelAttribute(name = "model") OfferFindBindingModel model){
+        try {
+            this.offerService.findOffer(model);
+        } catch (IllegalArgumentException ex) {
+            ex.printStackTrace();
+
+            return "redirect:/find";
         }
 
         return "redirect:/";
