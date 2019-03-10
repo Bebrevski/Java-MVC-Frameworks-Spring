@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
@@ -25,10 +25,10 @@ public class UserServiceImpl implements UserService{
         User user = this.modelMapper.map(userServiceModel, User.class);
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
 
-        try{
+        try {
             this.userRepository.saveAndFlush(user);
             return true;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -36,14 +36,9 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserServiceModel loginUser(UserServiceModel userServiceModel) {
-        User user = this.userRepository
-                .findByUsername(userServiceModel.getUsername())
+        return this.userRepository.findByUsername(userServiceModel.getUsername())
+                .filter(u -> u.getPassword().equals(DigestUtils.sha256Hex(userServiceModel.getPassword())))
+                .map(u -> this.modelMapper.map(u, UserServiceModel.class))
                 .orElse(null);
-
-        if(user == null || !(user.getPassword().equals(DigestUtils.sha256Hex(userServiceModel.getPassword())))) {
-            return null;
-        }
-
-        return this.modelMapper.map(user, UserServiceModel.class);
     }
 }

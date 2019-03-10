@@ -94,7 +94,7 @@ public class UserController {
             session.invalidate();
             modelAndView.setViewName("redirect:/");
         }
-        
+
         return modelAndView;
     }
 }
