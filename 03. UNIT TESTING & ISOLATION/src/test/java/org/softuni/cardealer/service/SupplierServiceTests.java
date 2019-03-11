@@ -108,4 +108,31 @@ public class SupplierServiceTests {
 
         Assert.assertEquals(expected, actual);
     }
+
+    @Test(expected = Exception.class)
+    public void supplierService_deleteSupplierWithNull_ThrowsException(){
+        this.supplierService.deleteSupplier(null);
+    }
+
+    @Test
+    public void supplierService_findSupplierByIdWithValidId_ReturnsCorrect(){
+        Supplier supplier = new Supplier();
+        supplier.setName("Pesho");
+        supplier.setImporter(true);
+        supplier = this.supplierRepository.saveAndFlush(supplier);
+
+        SupplierServiceModel expected = this.supplierRepository
+                .findById(supplier.getId())
+                .map(s -> this.modelMapper.map(s, SupplierServiceModel.class))
+                .orElse(null);
+
+        SupplierServiceModel actual = this.supplierService.findSupplierById(supplier.getId());
+
+        Assert.assertEquals(expected.getId(), actual.getId());
+    }
+
+    @Test(expected = Exception.class)
+    public void supplierService_findSupplierByIdWithNullValue_ThrowsException(){
+        this.supplierService.findSupplierById(null);
+    }
 }
