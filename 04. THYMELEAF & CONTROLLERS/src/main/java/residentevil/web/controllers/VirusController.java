@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import residentevil.domain.model.binding.VirusAddBindingModel;
+import residentevil.domain.model.service.VirusServiceModel;
 import residentevil.domain.model.view.CapitalListViewModel;
 import residentevil.service.CapitalService;
+import residentevil.service.VirusService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -22,11 +24,13 @@ import java.util.stream.Collectors;
 public class VirusController extends BaseController {
 
     private final CapitalService capitalService;
+    private final VirusService virusService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public VirusController(CapitalService capitalService, ModelMapper modelMapper) {
+    public VirusController(CapitalService capitalService, VirusService virusService, ModelMapper modelMapper) {
         this.capitalService = capitalService;
+        this.virusService = virusService;
         this.modelMapper = modelMapper;
     }
 
@@ -58,10 +62,12 @@ public class VirusController extends BaseController {
             return super.view("add-virus", modelAndView);
         }
 
+        this.virusService.addVirus(this.modelMapper.map(bindingModel, VirusServiceModel.class));
+
         return super.redirect("/");
     }
 
-    //Alternative way for dates from form...not working for now
+    //Alternative way to bind dates from form...not working for now
 //    @InitBinder
 //    private void initBinder(WebDataBinder binder){
 //        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));

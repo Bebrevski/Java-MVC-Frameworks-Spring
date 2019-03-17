@@ -1,5 +1,5 @@
 package residentevil.domain.entities;
 
 public enum Creator {
-    Corp, corp;
+    Corp, corp
 }

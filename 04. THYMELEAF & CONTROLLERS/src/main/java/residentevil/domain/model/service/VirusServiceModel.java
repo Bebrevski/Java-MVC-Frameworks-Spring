@@ -1,25 +1,15 @@
-package residentevil.domain.model.binding;
+package residentevil.domain.model.service;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import residentevil.domain.entities.Capital;
 import residentevil.domain.entities.Creator;
 import residentevil.domain.entities.Magnitude;
 import residentevil.domain.entities.Mutation;
-import residentevil.validators.CreatorEnum;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
-public class VirusAddBindingModel {
-
-    private static final String CAN_NOT_BE_EMPTY = "Invalid name! Field can not be emplty!";
-    private static final String INVALID_NAME = "Invalid name! Symbols must be between 3 and 10!";
-    private static final String INVALID_DESCRIPTION = "Description can not be empty!";
-    private static final String INVALID_SIDE_EFFECT = "Side effect must be between 1 and 50 symbols!";
-    private static final String INVALID_CREATOR = "Creator can be 'corp' or 'Corp'";
-
+public class VirusServiceModel {
+    private String id;
     private String name;
     private String description;
     private String sideEffects;
@@ -31,13 +21,19 @@ public class VirusAddBindingModel {
     private Integer hoursUntilTurn;
     private Magnitude magnitude;
     private LocalDate releasedOn;
-    private List<String> capitals;
+    private List<Capital> capitalList;
 
-    public VirusAddBindingModel() {
+    public VirusServiceModel() {
     }
 
-    @NotNull(message = CAN_NOT_BE_EMPTY)
-    @Size(min = 3, max = 10, message = INVALID_NAME)
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getName() {
         return this.name;
     }
@@ -46,7 +42,6 @@ public class VirusAddBindingModel {
         this.name = name;
     }
 
-    @NotEmpty(message = INVALID_DESCRIPTION)
     public String getDescription() {
         return this.description;
     }
@@ -55,8 +50,6 @@ public class VirusAddBindingModel {
         this.description = description;
     }
 
-    @NotNull
-    @Size(min = 1, max = 50, message = INVALID_SIDE_EFFECT)
     public String getSideEffects() {
         return this.sideEffects;
     }
@@ -65,7 +58,6 @@ public class VirusAddBindingModel {
         this.sideEffects = sideEffects;
     }
 
-    @CreatorEnum(enumClazz = Creator.class)
     public Creator getCreator() {
         return this.creator;
     }
@@ -122,7 +114,6 @@ public class VirusAddBindingModel {
         this.magnitude = magnitude;
     }
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     public LocalDate getReleasedOn() {
         return this.releasedOn;
     }
@@ -131,11 +122,11 @@ public class VirusAddBindingModel {
         this.releasedOn = releasedOn;
     }
 
-    public List<String> getCapitals() {
-        return this.capitals;
+    public List<Capital> getCapitalList() {
+        return this.capitalList;
     }
 
-    public void setCapitals(List<String> capitals) {
-        this.capitals = capitals;
+    public void setCapitalList(List<Capital> capitalList) {
+        this.capitalList = capitalList;
     }
 }
