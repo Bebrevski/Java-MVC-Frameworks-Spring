@@ -1,21 +1,26 @@
 package residentevil.web.controllers;
 
+import javassist.NotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import residentevil.domain.entities.Capital;
 import residentevil.domain.model.binding.VirusAddBindingModel;
+import residentevil.domain.model.binding.VirusEditBindingModel;
+import residentevil.domain.model.service.CapitalServiceModel;
 import residentevil.domain.model.service.VirusServiceModel;
 import residentevil.domain.model.view.CapitalListViewModel;
+import residentevil.domain.model.view.VirusEditViewModel;
+import residentevil.domain.model.view.VirusListViewModel;
 import residentevil.service.CapitalService;
 import residentevil.service.VirusService;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,14 +42,11 @@ public class VirusController extends BaseController {
     @GetMapping("/add")
     public ModelAndView add(
             @ModelAttribute(name = "bindingModel") VirusAddBindingModel bindingModel,
-            ModelAndView modelAndView){
+            ModelAndView modelAndView) {
 
         modelAndView.addObject("bindingModel", bindingModel);
 
-        List<CapitalListViewModel> capitals = this.capitalService.findAllCapitals()
-                .stream()
-                .map(c -> this.modelMapper.map(c, CapitalListViewModel.class))
-                .collect(Collectors.toList());
+        List<CapitalListViewModel> capitals = this.getCapitals();
 
         modelAndView.addObject("capitals", capitals);
         return super.view("add-virus", modelAndView);
@@ -55,24 +57,67 @@ public class VirusController extends BaseController {
             @Valid
             @ModelAttribute(name = "bindingModel") VirusAddBindingModel bindingModel,
             BindingResult bindingResult,
-            ModelAndView modelAndView){
+            ModelAndView modelAndView) {
 
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             modelAndView.addObject("bindingModel", bindingModel);
+            modelAndView.addObject("capitals", this.getCapitals());
             return super.view("add-virus", modelAndView);
         }
 
-        this.virusService.addVirus(this.modelMapper.map(bindingModel, VirusServiceModel.class));
+        VirusServiceModel virusServiceModel = this.modelMapper.map(bindingModel, VirusServiceModel.class);
+        this.populateCapitals(virusServiceModel, bindingModel);
+        this.virusService.addVirus(virusServiceModel);
 
         return super.redirect("/");
     }
 
-    //Alternative way to bind dates from form...not working for now
-//    @InitBinder
-//    private void initBinder(WebDataBinder binder){
-//        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-//        simpleDateFormat.setLenient(false);
-//        binder.registerCustomEditor(LocalDate.class, new CustomDateEditor(simpleDateFormat, true));
-//    }
+    @GetMapping("/show")
+    public ModelAndView show(ModelAndView modelAndView) {
+        List<VirusListViewModel> viruses = this.virusService.getAllViruses()
+                .stream()
+                .map(v -> this.modelMapper.map(v, VirusListViewModel.class))
+                .collect(Collectors.toList());
+        modelAndView.addObject("viruses", viruses);
+
+        return super.view("all-viruses", modelAndView);
+    }
+
+    @GetMapping("/edit/{id}")
+    public ModelAndView edit(
+            @PathVariable(name = "id") String id,
+            ModelAndView modelAndView,
+            @ModelAttribute(name = "bindingModel") VirusEditBindingModel bindingModel,
+            BindingResult bindingResult) {
+
+        VirusServiceModel virusServiceModel = this.virusService.findById(id);
+
+        if (virusServiceModel == null) {
+            return super.view("error");
+        }
+
+        modelAndView.addObject("model", this.modelMapper.map(virusServiceModel, VirusEditViewModel.class));
+        return super.view("edit", modelAndView);
+    }
+
+    private List<CapitalListViewModel> getCapitals() {
+        return this.capitalService.findAllCapitals()
+                .stream()
+                .map(c -> this.modelMapper.map(c, CapitalListViewModel.class))
+                .collect(Collectors.toList());
+    }
+
+    private void populateCapitals(VirusServiceModel virusServiceModel, VirusAddBindingModel bindingModel) {
+        List<Capital> capitalList = new ArrayList<>();
+        for (String capitalId : bindingModel.getCapitalList()) {
+            Capital entity;
+            try {
+                entity = this.capitalService.findById(capitalId);
+            } catch (NotFoundException e) {
+                continue;
+            }
+            capitalList.add(entity);
+        }
+        virusServiceModel.setCapitalList(capitalList);
+    }
 }

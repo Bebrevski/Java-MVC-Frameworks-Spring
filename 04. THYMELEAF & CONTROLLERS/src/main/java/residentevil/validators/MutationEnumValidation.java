@@ -3,18 +3,20 @@ package residentevil.validators;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import javax.validation.ReportAsSingleViolation;
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@Constraint(validatedBy = CreatorEnumImpl.class)
+@Constraint(validatedBy = MutationEnumValidationImpl.class)
 @ReportAsSingleViolation
-public @interface CreatorEnum {
+public @interface MutationEnumValidation {
 
     Class<? extends Enum<?>> enumClazz();
 
-    String message() default "Invalid Creator. Can be 'Corp' or 'corp'";
+    String message() default "Invalid Mutation. Choose some of the given options";
 
     Class<?>[] groups() default {};
 

@@ -7,6 +7,9 @@ import residentevil.domain.entities.Virus;
 import residentevil.domain.model.service.VirusServiceModel;
 import residentevil.repository.VirusRepository;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class VirusServiceImpl implements VirusService {
 
@@ -25,5 +28,19 @@ public class VirusServiceImpl implements VirusService {
         Virus entity = this.modelMapper.map(virusServiceModel, Virus.class);
 
         return this.modelMapper.map(this.virusRepository.saveAndFlush(entity), VirusServiceModel.class);
+    }
+
+    @Override
+    public List<VirusServiceModel> getAllViruses() {
+        return this.virusRepository.findAll()
+                .stream()
+                .map(v -> this.modelMapper.map(v, VirusServiceModel.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public VirusServiceModel findById(String id) {
+        Virus virus = this.virusRepository.findById(id).orElse(null);
+        return this.modelMapper.map(virus, VirusServiceModel.class);
     }
 }

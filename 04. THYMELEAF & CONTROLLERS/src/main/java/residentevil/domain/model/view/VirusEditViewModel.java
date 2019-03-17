@@ -1,29 +1,15 @@
-package residentevil.domain.model.binding;
+package residentevil.domain.model.view;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import residentevil.domain.entities.Capital;
 import residentevil.domain.entities.Creator;
 import residentevil.domain.entities.Magnitude;
 import residentevil.domain.entities.Mutation;
-import residentevil.validators.CapitalsListValidation;
-import residentevil.validators.CreatorEnumValidation;
-import residentevil.validators.DateValidation;
-import residentevil.validators.MutationEnumValidation;
 
-import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.List;
 
-public class VirusAddBindingModel {
-
-    private static final String CAN_NOT_BE_EMPTY = "Invalid name! Field can not be emplty!";
-    private static final String INVALID_NAME = "Invalid name! Symbols must be between 3 and 10!";
-    private static final String INVALID_DESCRIPTION = "Description can not be empty!";
-    private static final String INVALID_SIDE_EFFECT = "Side effect must be between 1 and 50 symbols!";
-    private static final String TURNOVER_RATE_CANNOT_BE_NULL = "Turnover rate can not be empty field";
-    private static final String INVALID_TURNOVER_RATE = "Turnover rate can be between 1 and 100";
-    private static final String HOURS_CANNOT_BE_NULL = "Hours until turn can not be empty field";
-    private static final String INVALID_HOURS_UNTIL_TURN = "Hours until turn rate can be between 1 and 12";
-
+public class VirusEditViewModel {
+    private String id;
     private String name;
     private String description;
     private String sideEffects;
@@ -35,13 +21,19 @@ public class VirusAddBindingModel {
     private Integer hoursUntilTurn;
     private Magnitude magnitude;
     private LocalDate releasedOn;
-    private List<String> capitalList;
+    private List<Capital> capitalList;
 
-    public VirusAddBindingModel() {
+    public VirusEditViewModel() {
     }
 
-    @NotNull(message = CAN_NOT_BE_EMPTY)
-    @Size(min = 3, max = 10, message = INVALID_NAME)
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getName() {
         return this.name;
     }
@@ -50,7 +42,6 @@ public class VirusAddBindingModel {
         this.name = name;
     }
 
-    @NotEmpty(message = INVALID_DESCRIPTION)
     public String getDescription() {
         return this.description;
     }
@@ -59,8 +50,6 @@ public class VirusAddBindingModel {
         this.description = description;
     }
 
-    @NotNull
-    @Size(min = 1, max = 50, message = INVALID_SIDE_EFFECT)
     public String getSideEffects() {
         return this.sideEffects;
     }
@@ -69,7 +58,6 @@ public class VirusAddBindingModel {
         this.sideEffects = sideEffects;
     }
 
-    @CreatorEnumValidation(enumClazz = Creator.class)
     public Creator getCreator() {
         return this.creator;
     }
@@ -94,7 +82,6 @@ public class VirusAddBindingModel {
         isCurable = curable;
     }
 
-    @MutationEnumValidation(enumClazz = Mutation.class)
     public Mutation getMutation() {
         return this.mutation;
     }
@@ -103,9 +90,6 @@ public class VirusAddBindingModel {
         this.mutation = mutation;
     }
 
-    @NotNull(message = TURNOVER_RATE_CANNOT_BE_NULL)
-    @DecimalMin(value = "1", message = INVALID_TURNOVER_RATE)
-    @DecimalMax(value = "100", message = INVALID_TURNOVER_RATE)
     public Integer getTurnoverRate() {
         return this.turnoverRate;
     }
@@ -114,9 +98,6 @@ public class VirusAddBindingModel {
         this.turnoverRate = turnoverRate;
     }
 
-    @NotNull(message = HOURS_CANNOT_BE_NULL)
-    @DecimalMin(value = "1", message = INVALID_HOURS_UNTIL_TURN)
-    @DecimalMax(value = "12", message = INVALID_HOURS_UNTIL_TURN)
     public Integer getHoursUntilTurn() {
         return this.hoursUntilTurn;
     }
@@ -133,8 +114,6 @@ public class VirusAddBindingModel {
         this.magnitude = magnitude;
     }
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @DateValidation
     public LocalDate getReleasedOn() {
         return this.releasedOn;
     }
@@ -143,12 +122,11 @@ public class VirusAddBindingModel {
         this.releasedOn = releasedOn;
     }
 
-    @CapitalsListValidation
-    public List<String> getCapitalList() {
+    public List<Capital> getCapitalList() {
         return this.capitalList;
     }
 
-    public void setCapitalList(List<String> capitalList) {
+    public void setCapitalList(List<Capital> capitalList) {
         this.capitalList = capitalList;
     }
 }
