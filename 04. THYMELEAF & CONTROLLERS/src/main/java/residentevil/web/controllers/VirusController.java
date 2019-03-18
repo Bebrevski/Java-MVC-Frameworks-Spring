@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import residentevil.domain.entities.Capital;
 import residentevil.domain.model.binding.VirusAddBindingModel;
+import residentevil.domain.model.binding.VirusBindingModel;
 import residentevil.domain.model.binding.VirusEditBindingModel;
 import residentevil.domain.model.service.CapitalServiceModel;
 import residentevil.domain.model.service.VirusServiceModel;
@@ -87,8 +88,7 @@ public class VirusController extends BaseController {
     public ModelAndView edit(
             @PathVariable(name = "id") String id,
             ModelAndView modelAndView,
-            @ModelAttribute(name = "bindingModel") VirusEditBindingModel bindingModel,
-            BindingResult bindingResult) {
+            @ModelAttribute(name = "bindingModel") VirusEditBindingModel bindingModel) {
 
         VirusServiceModel virusServiceModel = this.virusService.findById(id);
 
@@ -96,8 +96,35 @@ public class VirusController extends BaseController {
             return super.view("error");
         }
 
-        modelAndView.addObject("model", this.modelMapper.map(virusServiceModel, VirusEditViewModel.class));
+        modelAndView.addObject("capitals", this.getCapitals());
         return super.view("edit", modelAndView);
+    }
+
+    @PostMapping("/edit/{id}")
+    public ModelAndView edinConfirm(
+            @PathVariable(name = "id") String id,
+            ModelAndView modelAndView,
+            @Valid
+            @ModelAttribute(name = "bindingModel") VirusEditBindingModel bindingModel,
+            BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            modelAndView.addObject("bindingModel", bindingModel);
+            modelAndView.addObject("capitals", this.getCapitals());
+            return super.view("edit", modelAndView);
+        }
+
+        VirusServiceModel virusServiceModel = this.modelMapper.map(bindingModel, VirusServiceModel.class);
+        this.populateCapitals(virusServiceModel, bindingModel);
+        this.virusService.editVirus(virusServiceModel);
+
+        return super.redirect("/viruses/show");
+    }
+
+    @GetMapping("/delete/{id}")
+    public ModelAndView delete( @PathVariable(name = "id") String id, ModelAndView modelAndView){
+        this.virusService.deleteVirusById(id);
+        return super.redirect("/viruses/show");
     }
 
     private List<CapitalListViewModel> getCapitals() {
@@ -107,7 +134,7 @@ public class VirusController extends BaseController {
                 .collect(Collectors.toList());
     }
 
-    private void populateCapitals(VirusServiceModel virusServiceModel, VirusAddBindingModel bindingModel) {
+    private void populateCapitals(VirusServiceModel virusServiceModel, VirusBindingModel bindingModel) {
         List<Capital> capitalList = new ArrayList<>();
         for (String capitalId : bindingModel.getCapitalList()) {
             Capital entity;
