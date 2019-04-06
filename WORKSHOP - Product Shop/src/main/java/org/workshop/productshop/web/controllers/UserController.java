@@ -4,11 +4,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.workshop.productshop.domain.models.binding.UserEditBindingModel;
 import org.workshop.productshop.domain.models.binding.UserRegisterBindingModel;
 import org.workshop.productshop.domain.models.service.UserServiceModel;
 import org.workshop.productshop.domain.models.view.UserProfileViewModel;
@@ -55,7 +53,7 @@ public class UserController extends BaseController {
 
     @GetMapping("/profile")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView profile(Principal principal, ModelAndView modelAndView){
+    public ModelAndView profile(Principal principal, ModelAndView modelAndView) {
         modelAndView.addObject(
                 "model",
                 this.modelMapper.map(this.userService.findUserByUsername(principal.getName()), UserProfileViewModel.class));
@@ -65,11 +63,22 @@ public class UserController extends BaseController {
 
     @GetMapping("/edit")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView editProfile(Principal principal, ModelAndView modelAndView){
+    public ModelAndView editProfile(Principal principal, ModelAndView modelAndView) {
         modelAndView.addObject(
                 "model",
                 this.modelMapper.map(this.userService.findUserByUsername(principal.getName()), UserProfileViewModel.class));
 
         return super.view("edit-profile", modelAndView);
+    }
+
+    @PatchMapping("/edit")
+    public ModelAndView editProfileConfirm(@ModelAttribute UserEditBindingModel model) {
+        if (!model.getPassword().equals(model.getConfirmPassword())) {
+            return super.view("edit-profile");
+        }
+
+        this.userService.editUserProfile(this.modelMapper.map(model, UserServiceModel.class), model.getOldPassword());
+
+        return super.redirect("users/profile");
     }
 }
