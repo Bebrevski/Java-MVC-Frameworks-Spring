@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.workshop.productshop.domain.models.binding.UserRegisterBindingModel;
 import org.workshop.productshop.domain.models.service.UserServiceModel;
+import org.workshop.productshop.domain.models.view.UserProfileViewModel;
 import org.workshop.productshop.service.UserService;
+
+import java.security.Principal;
 
 @Controller
 @RequestMapping("/users")
@@ -48,5 +51,25 @@ public class UserController extends BaseController {
     @PreAuthorize("isAnonymous()")
     public ModelAndView login() {
         return super.view("login");
+    }
+
+    @GetMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
+    public ModelAndView profile(Principal principal, ModelAndView modelAndView){
+        modelAndView.addObject(
+                "model",
+                this.modelMapper.map(this.userService.findUserByUsername(principal.getName()), UserProfileViewModel.class));
+
+        return super.view("profile", modelAndView);
+    }
+
+    @GetMapping("/edit")
+    @PreAuthorize("isAuthenticated()")
+    public ModelAndView editProfile(Principal principal, ModelAndView modelAndView){
+        modelAndView.addObject(
+                "model",
+                this.modelMapper.map(this.userService.findUserByUsername(principal.getName()), UserProfileViewModel.class));
+
+        return super.view("edit-profile", modelAndView);
     }
 }
