@@ -9,10 +9,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.workshop.productshop.domain.models.binding.UserEditBindingModel;
 import org.workshop.productshop.domain.models.binding.UserRegisterBindingModel;
 import org.workshop.productshop.domain.models.service.UserServiceModel;
+import org.workshop.productshop.domain.models.view.UserAllViewModel;
 import org.workshop.productshop.domain.models.view.UserProfileViewModel;
 import org.workshop.productshop.service.UserService;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/users")
@@ -42,7 +45,7 @@ public class UserController extends BaseController {
 
         this.userService.registerUser(this.modelMapper.map(model, UserServiceModel.class));
 
-        return super.redirect("login");
+        return super.redirect("/login");
     }
 
     @GetMapping("/login")
@@ -79,6 +82,43 @@ public class UserController extends BaseController {
 
         this.userService.editUserProfile(this.modelMapper.map(model, UserServiceModel.class), model.getOldPassword());
 
-        return super.redirect("users/profile");
+        return super.redirect("/users/profile");
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ModelAndView allUsers(ModelAndView modelAndView) {
+        List<UserAllViewModel> users = this.userService.findAllUsers()
+                .stream()
+                .map(u -> {
+                    UserAllViewModel user = this.modelMapper.map(u, UserAllViewModel.class);
+                    user.setAuthorities(u.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.toSet()));
+                    return user;
+                })
+                .collect(Collectors.toList());
+
+        modelAndView.addObject("users", users);
+        return super.view("all-users", modelAndView);
+    }
+
+    @PostMapping("set-user/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ModelAndView setUser(@PathVariable String id) {
+        this.userService.setUserRole(id, "user");
+        return super.redirect("/users/all");
+    }
+
+    @PostMapping("set-moderator/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ModelAndView setModerator(@PathVariable String id) {
+        this.userService.setUserRole(id, "moderator");
+        return super.redirect("/users/all");
+    }
+
+    @PostMapping("set-admin/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ModelAndView setAdmin(@PathVariable String id) {
+        this.userService.setUserRole(id, "admin");
+        return super.redirect("/users/all");
     }
 }
