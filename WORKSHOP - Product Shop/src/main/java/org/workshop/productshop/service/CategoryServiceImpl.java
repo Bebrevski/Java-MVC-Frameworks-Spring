@@ -7,6 +7,9 @@ import org.workshop.productshop.domain.entities.Category;
 import org.workshop.productshop.domain.models.service.CategoryServiceModel;
 import org.workshop.productshop.repository.CategoryRepository;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -24,5 +27,13 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = this.modelMapper.map(categoryServiceModel, Category.class);
 
         return this.modelMapper.map(this.categoryRepository.saveAndFlush(category), CategoryServiceModel.class);
+    }
+
+    @Override
+    public List<CategoryServiceModel> findAllCategories() {
+        return this.categoryRepository
+                .findAll()
+                .stream()
+                .map(c -> this.modelMapper.map(c, CategoryServiceModel.class)).collect(Collectors.toList());
     }
 }
