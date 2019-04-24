@@ -36,4 +36,28 @@ public class CategoryServiceImpl implements CategoryService {
                 .stream()
                 .map(c -> this.modelMapper.map(c, CategoryServiceModel.class)).collect(Collectors.toList());
     }
+
+    @Override
+    public CategoryServiceModel findCategoryById(String id) {
+        Category category = this.categoryRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
+
+        return this.modelMapper.map(category, CategoryServiceModel.class);
+    }
+
+    @Override
+    public CategoryServiceModel editCategory(String id, CategoryServiceModel categoryServiceModel) {
+        Category category = this.categoryRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
+        category.setName(categoryServiceModel.getName());
+
+        return this.modelMapper.map(this.categoryRepository.saveAndFlush(category), CategoryServiceModel.class);
+    }
+
+    @Override
+    public CategoryServiceModel deleteCategory(String id) {
+        Category category = this.categoryRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
+
+        this.categoryRepository.delete(category);
+
+        return this.modelMapper.map(category, CategoryServiceModel.class);
+    }
 }
