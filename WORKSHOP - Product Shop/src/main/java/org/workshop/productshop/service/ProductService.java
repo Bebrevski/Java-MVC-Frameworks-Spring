@@ -9,4 +9,6 @@ public interface ProductService {
     ProductServiceModel addProduct(ProductServiceModel productServiceModel);
 
     List<ProductServiceModel> findAllProduct();
+
+    ProductServiceModel findProductById(String id);
 }

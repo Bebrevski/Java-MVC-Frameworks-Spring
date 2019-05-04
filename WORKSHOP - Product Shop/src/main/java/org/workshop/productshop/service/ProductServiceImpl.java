@@ -36,4 +36,12 @@ public class ProductServiceImpl implements ProductService {
                 .map(p -> this.modelMapper.map(p, ProductServiceModel.class))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public ProductServiceModel findProductById(String id) {
+        return this.productRepository
+                .findById(id)
+                .map(p -> this.modelMapper.map(p, ProductServiceModel.class))
+                .orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
+    }
 }
