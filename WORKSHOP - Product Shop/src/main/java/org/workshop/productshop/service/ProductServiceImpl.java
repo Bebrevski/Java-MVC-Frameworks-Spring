@@ -7,6 +7,9 @@ import org.workshop.productshop.domain.entities.Product;
 import org.workshop.productshop.domain.models.service.ProductServiceModel;
 import org.workshop.productshop.repository.ProductRepository;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -24,5 +27,13 @@ public class ProductServiceImpl implements ProductService {
         Product product = this.modelMapper.map(productServiceModel, Product.class);
 
         return this.modelMapper.map(this.productRepository.saveAndFlush(product), ProductServiceModel.class);
+    }
+
+    @Override
+    public List<ProductServiceModel> findAllProduct() {
+        return this.productRepository.findAll()
+                .stream()
+                .map(p -> this.modelMapper.map(p, ProductServiceModel.class))
+                .collect(Collectors.toList());
     }
 }
