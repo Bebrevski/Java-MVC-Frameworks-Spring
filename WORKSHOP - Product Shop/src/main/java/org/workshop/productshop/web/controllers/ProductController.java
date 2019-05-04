@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.workshop.productshop.domain.models.binding.ProductAddBindingModel;
+import org.workshop.productshop.domain.models.service.CategoryServiceModel;
 import org.workshop.productshop.domain.models.service.ProductServiceModel;
 import org.workshop.productshop.domain.models.view.ProductAllViewModel;
 import org.workshop.productshop.domain.models.view.ProductDetailsViewModel;
@@ -79,5 +80,18 @@ public class ProductController extends BaseController {
         );
 
         return super.view("product/details", modelAndView);
+    }
+
+    @GetMapping("/edit/{id}")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ModelAndView editProduct(@PathVariable String id, ModelAndView modelAndView){
+        ProductServiceModel productServiceModel = this.productService.findProductById(id);
+        ProductAddBindingModel model = this.modelMapper.map(productServiceModel, ProductAddBindingModel.class);
+        model.setCategories(productServiceModel.getCategories().stream().map(CategoryServiceModel::getName).collect(Collectors.toList()));
+
+        modelAndView.addObject("product", model);
+        modelAndView.addObject("productId", id);
+
+        return super.view("product/edit-product", modelAndView);
     }
 }
