@@ -67,6 +67,14 @@
             <artifactId>thymeleaf-extras-springsecurity5</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary -->
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

@@ -11,6 +11,7 @@ import org.workshop.productshop.domain.models.service.CategoryServiceModel;
 import org.workshop.productshop.domain.models.view.CategoryViewModel;
 import org.workshop.productshop.service.CategoryService;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
@@ -53,7 +54,7 @@ public class CategoryController extends BaseController {
 
     @GetMapping("/edit/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView editCategory(@PathVariable String id, ModelAndView modelAndView){
+    public ModelAndView editCategory(@PathVariable String id, ModelAndView modelAndView) {
         modelAndView.addObject("model", this.modelMapper.map(this.categoryService.findCategoryById(id), CategoryViewModel.class));
 
         return super.view("category/edit-category", modelAndView);
@@ -61,14 +62,14 @@ public class CategoryController extends BaseController {
 
     @PostMapping("/edit/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView editCategoryConfirm(@PathVariable String id, @ModelAttribute CategoryAddBindingModel model){
+    public ModelAndView editCategoryConfirm(@PathVariable String id, @ModelAttribute CategoryAddBindingModel model) {
         this.categoryService.editCategory(id, this.modelMapper.map(model, CategoryServiceModel.class));
         return super.redirect("/categories/all");
     }
 
     @GetMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView deleteCategory(@PathVariable String id, ModelAndView modelAndView){
+    public ModelAndView deleteCategory(@PathVariable String id, ModelAndView modelAndView) {
         modelAndView.addObject("model", this.modelMapper.map(this.categoryService.findCategoryById(id), CategoryViewModel.class));
 
         return super.view("category/delete-category", modelAndView);
@@ -76,8 +77,18 @@ public class CategoryController extends BaseController {
 
     @PostMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ModelAndView deleteCategoryConfirm(@PathVariable String id, @ModelAttribute CategoryAddBindingModel model){
+    public ModelAndView deleteCategoryConfirm(@PathVariable String id, @ModelAttribute CategoryAddBindingModel model) {
         this.categoryService.deleteCategory(id);
         return super.redirect("/categories/all");
+    }
+
+    @GetMapping("/fetch")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    @ResponseBody
+    public List<CategoryViewModel> fetchCategories() {
+        return this.categoryService.findAllCategories()
+                .stream()
+                .map(c -> this.modelMapper.map(c, CategoryViewModel.class))
+                .collect(Collectors.toList());
     }
 }
