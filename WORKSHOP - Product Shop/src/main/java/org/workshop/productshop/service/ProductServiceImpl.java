@@ -50,7 +50,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductServiceModel editProduct(String id, ProductServiceModel productServiceModel) {
-        Product product = this.productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
+        Product product = this.productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
 
         productServiceModel.setCategories(
                 this.categoryService.findAllCategories()
@@ -74,7 +75,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(String id) {
-        Product product = this.productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
+        Product product = this.productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
 
         this.productRepository.delete(product);
     }
