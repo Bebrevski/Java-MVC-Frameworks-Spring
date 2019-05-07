@@ -11,8 +11,13 @@ import org.workshop.productshop.domain.entities.Order;
 import org.workshop.productshop.domain.entities.Product;
 import org.workshop.productshop.domain.entities.User;
 import org.workshop.productshop.domain.models.service.OrderServiceModel;
+import org.workshop.productshop.domain.models.service.UserServiceModel;
 import org.workshop.productshop.repository.OrderRepository;
+import org.workshop.productshop.repository.ProductRepository;
 import org.workshop.productshop.service.OrderService;
+import org.workshop.productshop.service.UserService;
+import org.workshop.productshop.validation.ProductValidationService;
+import org.workshop.productshop.validation.UserValidationService;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -28,7 +33,15 @@ public class OrderServiceTest {
     OrderService orderService;
 
     @MockBean
-    OrderRepository orderRepository;
+    OrderRepository mockOrderRepository;
+    @MockBean
+    UserValidationService mockUserValidationService;
+    @MockBean
+    UserService mockUserService;
+    @MockBean
+    ProductValidationService mockProductValidationService;
+    @MockBean
+    ProductRepository mockProductRepository;
 
     private List<Order> orders;
 
@@ -36,7 +49,7 @@ public class OrderServiceTest {
     public void setupTest() {
         orders = new ArrayList<>();
 
-        when(orderRepository.findAll())
+        when(mockOrderRepository.findAll())
                 .thenReturn(orders);
     }
 
@@ -74,5 +87,51 @@ public class OrderServiceTest {
         orders.clear();
         var result = orderService.findAllOrders();
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void createOrder_whenUserAndProductAreValid_orderCreate() throws Exception {
+        when(mockUserValidationService.isValid(any()))
+                .thenReturn(true);
+        when(mockProductValidationService.isValid(any()))
+                .thenReturn(true);
+        when(mockUserService.findUserByUsername(any()))
+                .thenReturn(new UserServiceModel());
+        when(mockProductRepository.findById(any()))
+                .thenReturn(java.util.Optional.of(new Product()));
+
+        orderService.createOrder("", "");
+
+        verify(mockOrderRepository).save(any());
+    }
+
+    @Test(expected = Exception.class)
+    public void createOrder_whenUserIsValidAndProductIsNotValid_throw() throws Exception {
+        when(mockUserValidationService.isValid(any()))
+                .thenReturn(true);
+        when(mockProductValidationService.isValid(any()))
+                .thenReturn(false);
+
+        orderService.createOrder("", "");
+    }
+
+    @Test(expected = Exception.class)
+    public void createOrder_whenUserIsNotValidAndProductIsValid_orderCreate() throws Exception {
+        when(mockUserValidationService.isValid(any()))
+                .thenReturn(false);
+        when(mockProductValidationService.isValid(any()))
+                .thenReturn(true);
+
+        orderService.createOrder("", "");
+    }
+
+    @Test(expected = Exception.class)
+    public void createOrder_whenUserAndProductAreNotValid_orderCreate() throws Exception {
+        when(mockUserValidationService.isValid(any()))
+                .thenReturn(false);
+        when(mockProductValidationService.isValid(any()))
+                .thenReturn(false);
+
+        orderService.createOrder("", "");
     }
 }

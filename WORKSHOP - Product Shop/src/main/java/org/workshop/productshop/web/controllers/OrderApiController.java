@@ -22,7 +22,7 @@ public class OrderApiController {
     }
 
     @PostMapping("/submit")
-    public void submitOrder(@RequestBody ProductOrderRequstModel model, Principal principal) {
+    public void submitOrder(@RequestBody ProductOrderRequstModel model, Principal principal) throws Exception {
         String name = principal.getName();
         this.orderService.createOrder(model.getId(), name);
     }

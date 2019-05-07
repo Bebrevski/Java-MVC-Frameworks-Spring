@@ -10,6 +10,8 @@ import org.workshop.productshop.domain.models.service.OrderServiceModel;
 import org.workshop.productshop.domain.models.service.UserServiceModel;
 import org.workshop.productshop.repository.OrderRepository;
 import org.workshop.productshop.repository.ProductRepository;
+import org.workshop.productshop.validation.ProductValidationService;
+import org.workshop.productshop.validation.UserValidationService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,20 +23,30 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
 
+    private final ProductValidationService productValidationService;
+    private final UserValidationService userValidationService;
+
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, UserService userService, ProductRepository productRepository, ModelMapper modelMapper) {
+    public OrderServiceImpl(OrderRepository orderRepository, UserService userService, ProductRepository productRepository, ModelMapper modelMapper, ProductValidationService productValidationService, UserValidationService userValidationService) {
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.productRepository = productRepository;
         this.modelMapper = modelMapper;
+        this.productValidationService = productValidationService;
+        this.userValidationService = userValidationService;
     }
 
     @Override
-    public void createOrder(String productId, String name) {
+    public void createOrder(String productId, String name) throws Exception {
         UserServiceModel userServiceModel = this.userService.findUserByUsername(name);
 
+        if (!userValidationService.isValid(userServiceModel)) {
+            throw new Exception("Invalid id!");
+        }
+
         Product product = this.productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
+                .filter(productValidationService::isValid)
+                .orElseThrow(Exception::new);
 
         User user = new User();
         user.setId(userServiceModel.getId());
