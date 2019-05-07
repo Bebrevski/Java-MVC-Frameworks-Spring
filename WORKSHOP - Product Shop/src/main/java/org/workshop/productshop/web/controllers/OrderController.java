@@ -1,5 +1,6 @@
 package org.workshop.productshop.web.controllers;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,7 @@ public class OrderController extends BaseController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ModelAndView getAllOrders(ModelAndView modelAndView){
         List<OrderViewModel> viewModels = orderService.findAllOrders()
                 .stream()
@@ -54,6 +56,20 @@ public class OrderController extends BaseController {
 
         modelAndView.addObject("orders", viewModels);
 
-        return view("order/all-orders", modelAndView);
+        return view("order/list-orders", modelAndView);
+    }
+
+    @GetMapping("/customer")
+    @PreAuthorize("isAuthenticated()")
+    public ModelAndView getCustomerOrders(ModelAndView modelAndView, Principal principal){
+        String username = principal.getName();
+        List<OrderViewModel> viewModels = orderService.findOrdersByCustomerName(username)
+                .stream()
+                .map(o -> this.modelMapper.map(o, OrderViewModel.class))
+                .collect(Collectors.toList());
+
+        modelAndView.addObject("orders", viewModels);
+
+        return view("order/list-orders", modelAndView);
     }
 }

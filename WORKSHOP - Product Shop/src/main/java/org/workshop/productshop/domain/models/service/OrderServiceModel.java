@@ -1,11 +1,16 @@
 package org.workshop.productshop.domain.models.service;
 
+import org.modelmapper.ModelMapper;
+import org.workshop.productshop.domain.entities.Order;
+import org.workshop.productshop.mappings.IHaveCustomMappings;
+
 import java.math.BigDecimal;
 
-public class OrderServiceModel {
+public class OrderServiceModel implements IHaveCustomMappings {
     private String imageUrl;
     private String name;
     private BigDecimal price;
+    private String customer;
 
     public OrderServiceModel() {
     }
@@ -32,5 +37,30 @@ public class OrderServiceModel {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public String getCustomer() {
+        return this.customer;
+    }
+
+    public void setCustomer(String customer) {
+        this.customer = customer;
+    }
+
+    @Override
+    public void configureMappings(ModelMapper mapper) {
+        mapper.createTypeMap(Order.class, OrderServiceModel.class)
+                .addMapping(
+                        entity -> entity.getProduct().getName(),
+                        (dto, value) -> dto.setName((String) value))
+                .addMapping(
+                        entity -> entity.getProduct().getPrice(),
+                        (dto, value) -> dto.setPrice((BigDecimal) value))
+                .addMapping(
+                        entity -> entity.getProduct().getImageUrl(),
+                        (dto, value) -> dto.setImageUrl((String) value))
+                .addMapping(
+                        entity -> entity.getUser().getUsername(),
+                        (dto, value) -> dto.setCustomer((String) value));
     }
 }
