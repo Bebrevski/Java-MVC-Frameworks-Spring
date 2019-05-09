@@ -7,6 +7,7 @@ import org.workshop.productshop.domain.entities.Category;
 import org.workshop.productshop.domain.entities.Product;
 import org.workshop.productshop.domain.models.service.ProductServiceModel;
 import org.workshop.productshop.repository.ProductRepository;
+import org.workshop.productshop.validation.ProductValidationService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,21 +16,30 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductValidationService productValidationService;
     private final CategoryService categoryService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, ModelMapper modelMapper) {
+    public ProductServiceImpl(
+            ProductRepository productRepository,
+            ProductValidationService productValidationService,
+            CategoryService categoryService,
+            ModelMapper modelMapper) {
         this.productRepository = productRepository;
+        this.productValidationService = productValidationService;
         this.categoryService = categoryService;
         this.modelMapper = modelMapper;
     }
 
     @Override
-    public ProductServiceModel addProduct(ProductServiceModel productServiceModel) {
+    public ProductServiceModel createProduct(ProductServiceModel productServiceModel) {
+        if (!productValidationService.isValid(productServiceModel)) {
+            throw new IllegalArgumentException();
+        }
         Product product = this.modelMapper.map(productServiceModel, Product.class);
-
-        return this.modelMapper.map(this.productRepository.saveAndFlush(product), ProductServiceModel.class);
+        product = this.productRepository.saveAndFlush(product);
+        return this.modelMapper.map(product, ProductServiceModel.class);
     }
 
     @Override
@@ -55,9 +65,9 @@ public class ProductServiceImpl implements ProductService {
 
         productServiceModel.setCategories(
                 this.categoryService.findAllCategories()
-                .stream()
-                .filter(c -> productServiceModel.getCategories().contains(c.getId()))
-                .collect(Collectors.toList())
+                        .stream()
+                        .filter(c -> productServiceModel.getCategories().contains(c.getId()))
+                        .collect(Collectors.toList())
         );
 
         product.setName(productServiceModel.getName());
@@ -65,9 +75,9 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productServiceModel.getPrice());
         product.setCategories(
                 productServiceModel.getCategories()
-                .stream()
-                .map(c -> this.modelMapper.map(c, Category.class))
-                .collect(Collectors.toList())
+                        .stream()
+                        .map(c -> this.modelMapper.map(c, Category.class))
+                        .collect(Collectors.toList())
         );
 
         return this.modelMapper.map(this.productRepository.saveAndFlush(product), ProductServiceModel.class);

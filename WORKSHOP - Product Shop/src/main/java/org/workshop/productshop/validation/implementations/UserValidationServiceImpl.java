@@ -8,6 +8,6 @@ import org.workshop.productshop.validation.UserValidationService;
 public class UserValidationServiceImpl implements UserValidationService {
     @Override
     public boolean isValid(UserServiceModel user) {
-        return user == null;
+        return user != null;
     }
 }

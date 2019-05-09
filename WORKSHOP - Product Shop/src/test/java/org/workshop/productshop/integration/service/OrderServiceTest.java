@@ -93,7 +93,7 @@ public class OrderServiceTest {
     public void createOrder_whenUserAndProductAreValid_orderCreate() throws Exception {
         when(mockUserValidationService.isValid(any()))
                 .thenReturn(true);
-        when(mockProductValidationService.isValid(any()))
+        when(mockProductValidationService.isValid(any(Product.class)))
                 .thenReturn(true);
         when(mockUserService.findUserByUsername(any()))
                 .thenReturn(new UserServiceModel());
@@ -109,7 +109,7 @@ public class OrderServiceTest {
     public void createOrder_whenUserIsValidAndProductIsNotValid_throw() throws Exception {
         when(mockUserValidationService.isValid(any()))
                 .thenReturn(true);
-        when(mockProductValidationService.isValid(any()))
+        when(mockProductValidationService.isValid(any(Product.class)))
                 .thenReturn(false);
 
         orderService.createOrder("", "");
@@ -119,7 +119,7 @@ public class OrderServiceTest {
     public void createOrder_whenUserIsNotValidAndProductIsValid_orderCreate() throws Exception {
         when(mockUserValidationService.isValid(any()))
                 .thenReturn(false);
-        when(mockProductValidationService.isValid(any()))
+        when(mockProductValidationService.isValid(any(Product.class)))
                 .thenReturn(true);
 
         orderService.createOrder("", "");
@@ -129,7 +129,7 @@ public class OrderServiceTest {
     public void createOrder_whenUserAndProductAreNotValid_orderCreate() throws Exception {
         when(mockUserValidationService.isValid(any()))
                 .thenReturn(false);
-        when(mockProductValidationService.isValid(any()))
+        when(mockProductValidationService.isValid(any(Product.class)))
                 .thenReturn(false);
 
         orderService.createOrder("", "");

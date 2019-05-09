@@ -53,7 +53,7 @@ public class ProductController extends BaseController {
         );
 
         productServiceModel.setImageUrl(this.cloudinaryService.uploadImage(model.getImage()));
-        this.productService.addProduct(productServiceModel);
+        this.productService.createProduct(productServiceModel);
         return super.redirect("/products/all");
     }
 
