@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.workshop.productshop.domain.entities.Category;
 import org.workshop.productshop.domain.entities.Product;
 import org.workshop.productshop.domain.models.service.ProductServiceModel;
+import org.workshop.productshop.error.ProductNotFoundException;
 import org.workshop.productshop.repository.ProductRepository;
 import org.workshop.productshop.validation.ProductValidationService;
 
@@ -55,13 +56,13 @@ public class ProductServiceImpl implements ProductService {
         return this.productRepository
                 .findById(id)
                 .map(p -> this.modelMapper.map(p, ProductServiceModel.class))
-                .orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
+                .orElseThrow(() -> new ProductNotFoundException("Product with given Id was not found!"));
     }
 
     @Override
     public ProductServiceModel editProduct(String id, ProductServiceModel productServiceModel) {
         Product product = this.productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
+                .orElseThrow(() -> new ProductNotFoundException("Product with given Id was not found!"));
 
         productServiceModel.setCategories(
                 this.categoryService.findAllCategories()
@@ -86,7 +87,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(String id) {
         Product product = this.productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid id!"));
+                .orElseThrow(() -> new ProductNotFoundException("Product with given Id was not found!"));
 
         this.productRepository.delete(product);
     }
